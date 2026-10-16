@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!-- Replace /PATH/TO/apple-bridge and the python path, then:
+     cp launchd/com.example.apple-bridge.plist ~/Library/LaunchAgents/
+     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.example.apple-bridge.plist -->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.example.apple-bridge</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/opt/homebrew/bin/python3</string>
+    <string>-m</string>
+    <string>apple_bridge.listener</string>
+    <string>watch</string>
+  </array>
+  <key>WorkingDirectory</key>
+  <string>/PATH/TO/apple-bridge</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>APPLE_BRIDGE_CONFIG</key>
+    <string>/PATH/TO/apple-bridge/config.json</string>
+    <key>PATH</key>
+    <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    <key>PYTHONUNBUFFERED</key>
+    <string>1</string>
+  </dict>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+  <key>ProcessType</key>
+  <string>Background</string>
+  <key>StandardOutPath</key>
+  <string>/PATH/TO/apple-bridge/work/listener.out.log</string>
+  <key>StandardErrorPath</key>
+  <string>/PATH/TO/apple-bridge/work/listener.err.log</string>
+</dict>
+</plist>
