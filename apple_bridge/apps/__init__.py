@@ -2,9 +2,12 @@
 from __future__ import annotations
 
 from .. import safety
-from . import calendar, clipboard, contacts, messages, notes, reminders
+from . import calendar, clipboard, contacts, finder, messages, music, notes, notifications, reminders, shortcuts
 
-MODULES = (calendar, reminders, messages, contacts, notes, clipboard)
+MODULES = (
+    calendar, reminders, messages, contacts, notes, clipboard,
+    shortcuts, music, finder, notifications,
+)
 
 
 def collect_tools() -> list[safety.ToolDef]:

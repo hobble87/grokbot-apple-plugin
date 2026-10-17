@@ -17,7 +17,10 @@ def test_collect_tools_names_are_unique():
 def test_every_app_is_represented():
     tools = collect_tools()
     apps = {t.name.split(".", 1)[0] for t in tools}
-    assert apps == {"calendar", "reminders", "messages", "contacts", "notes", "clipboard"}
+    assert apps == {
+        "calendar", "reminders", "messages", "contacts", "notes", "clipboard",
+        "shortcuts", "music", "finder", "notifications",
+    }
 
 
 def test_write_tools_include_expected_mutations():
@@ -26,6 +29,11 @@ def test_write_tools_include_expected_mutations():
         "calendar.create_event", "calendar.update_event",
         "reminders.create", "reminders.update",
         "messages.send", "notes.create", "clipboard.set",
+        "shortcuts.run",
+        "music.play", "music.pause", "music.next", "music.previous",
+        "music.play_playlist", "music.set_volume",
+        "finder.reveal", "finder.open",
+        "notifications.display",
     }
     actual_writes = {name for name, t in tools.items() if t.kind == "write"}
     assert actual_writes == expected_writes
