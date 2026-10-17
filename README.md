@@ -246,6 +246,17 @@ For every new message from an allowed contact, the listener POSTs:
 - **Mail send is a real write.** `mail.send` composes and sends immediately with no draft review step; keep it out of `allow_write_tools` unless you trust the model and the inputs. `mail.create_draft` is the safer alternative when you want a human to hit Send.
 - Safari's `Bookmarks.plist` and Messages' `chat.db` are undocumented Apple formats parsed as best-effort; a macOS update can change their layout.
 
+## Troubleshooting: tools time out / run over SSH or launchd
+
+If an app tool fails with `osascript timed out after 30s`, macOS is almost always sitting on an **Automation (TCC) consent dialog** on the Mac's screen, and `osascript` blocks silently until a human clicks it — there's no error until the timeout fires. This is most visible for apps you haven't approved yet (Contacts, Notes, Finder, Music, Mail, Safari, Photos); Calendar/Reminders often "just work" only because they were approved in an earlier session.
+
+- Check **System Settings → Privacy & Security → Automation** for the process actually running `python3` and approve the target app listed there.
+- When `python3` is launched over **SSH or by launchd**, macOS sometimes attributes the prompt to **`sshd`** or **`launchd`** instead of `python3` — if you don't see `python3` in the Automation list, look for those entries too, or run the command once from a local Terminal/iTerm session so the dialog appears under a process you can click.
+- Since this fix, a timeout from `osascript` includes a hint naming the app it was targeting (when it could be determined from the script) plus this guidance, so you don't have to guess from the bare timeout message. A denied prompt surfaces immediately as `-1743` ("not authorized to send Apple events") with an explicit "Automation permission denied" message instead of waiting for the timeout.
+- Each app's Automation grant is separate — approving one app doesn't approve the others.
+
+**Find My (`findmy.*`) caches:** the underlying `Items.data`/`Devices.data` JSON files only exist if the Find My app has been opened at least once under the account running this tool; a fresh account with no cache will see a clear "not found" error rather than a timeout. On newer macOS these cache files are also encrypted, so even when present they may be unreadable.
+
 ## Running tests
 
 The test suite mocks `runner.py`'s subprocess/sqlite calls and `calendar_mcp`'s Apple-events boundary, so it runs on Linux or any machine without macOS:

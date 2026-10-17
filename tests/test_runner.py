@@ -62,6 +62,53 @@ def test_timeout_raises_runner_error(monkeypatch):
         runner.run_cli(["/usr/bin/sleep", "100"], timeout=1)
 
 
+def test_osascript_timeout_hints_at_automation_prompt_with_app_name(monkeypatch):
+    def fake_run(argv, input=None, check=False, capture_output=False, text=False, timeout=None):
+        raise subprocess.TimeoutExpired(cmd=argv, timeout=timeout)
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    with pytest.raises(runner.RunnerError) as excinfo:
+        runner.run_applescript('tell application "Contacts"\nend tell', timeout=1)
+    message = str(excinfo.value)
+    assert "timed out after 1s" in message
+    assert "Automation" in message
+    assert "Contacts" in message
+    assert "sshd" in message and "launchd" in message
+
+
+def test_osascript_timeout_hints_generically_when_app_name_unknown(monkeypatch):
+    def fake_run(argv, input=None, check=False, capture_output=False, text=False, timeout=None):
+        raise subprocess.TimeoutExpired(cmd=argv, timeout=timeout)
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    with pytest.raises(runner.RunnerError) as excinfo:
+        runner.run_jxa("1 + 1", timeout=1)
+    message = str(excinfo.value)
+    assert "timed out after 1s" in message
+    assert "Automation" in message
+
+
+def test_non_osascript_timeout_keeps_plain_message(monkeypatch):
+    def fake_run(argv, input=None, check=False, capture_output=False, text=False, timeout=None):
+        raise subprocess.TimeoutExpired(cmd=argv, timeout=timeout)
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    with pytest.raises(runner.RunnerError) as excinfo:
+        runner.run_cli(["/usr/bin/sleep", "100"], timeout=1)
+    message = str(excinfo.value)
+    assert message == "/usr/bin/sleep timed out after 1s"
+
+
+def test_osascript_not_authorized_exit_code_gives_permission_hint(monkeypatch):
+    def fake_run(argv, input=None, check=False, capture_output=False, text=False, timeout=None):
+        stderr = "execution error: Not authorized to send Apple events to Contacts. (-1743)"
+        return subprocess.CompletedProcess(argv, 1, stdout="", stderr=stderr)
+
+    monkeypatch.setattr(subprocess, "run", fake_run)
+    with pytest.raises(runner.RunnerError, match="Automation permission denied"):
+        runner.run_applescript('tell application "Contacts"\nend tell')
+
+
 def test_missing_binary_raises_runner_error(monkeypatch):
     def fake_run(argv, input=None, check=False, capture_output=False, text=False, timeout=None):
         raise FileNotFoundError(argv[0])
