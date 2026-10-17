@@ -9,5 +9,7 @@
   "webhook_url": "https://your-assistant.example.com/hooks/imessage",
   "webhook_headers": {},
   "calendar": "Assistant Shared",
-  "reminders_list": "Assistant Shared"
+  "reminders_list": "Assistant Shared",
+  "allow_write_tools": [],
+  "disabled_apps": []
 }

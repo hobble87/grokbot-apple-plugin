@@ -42,6 +42,8 @@ def load() -> dict:
         "reminders_list": os.environ.get("APPLE_BRIDGE_REMINDERS_LIST", data.get("reminders_list", "")),
         "webhook_url": os.environ.get("APPLE_BRIDGE_WEBHOOK_URL", data.get("webhook_url", "")),
         "webhook_headers": dict(data.get("webhook_headers", {})),
+        "allow_write_tools": _list_env("APPLE_BRIDGE_ALLOW_WRITE_TOOLS") or list(data.get("allow_write_tools", [])),
+        "disabled_apps": _list_env("APPLE_BRIDGE_DISABLED_APPS") or list(data.get("disabled_apps", [])),
     }
     token = os.environ.get("APPLE_BRIDGE_WEBHOOK_TOKEN")
     if token:

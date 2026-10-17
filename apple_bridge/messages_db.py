@@ -79,6 +79,29 @@ def incoming_messages(connection: sqlite3.Connection, chat_id: int, after_rowid:
     ]
 
 
+def _escape_like(value: str) -> str:
+    return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
+def search_messages(connection: sqlite3.Connection, query: str, limit: int = 20) -> list[dict]:
+    """Search message text across all chats (most recent first)."""
+    rows = connection.execute(
+        f"""
+        SELECT m.ROWID, m.guid, m.text, m.date, m.is_from_me, h.id
+        FROM message AS m
+        LEFT JOIN handle AS h ON h.ROWID = m.handle_id
+        WHERE m.text LIKE ? ESCAPE '\\'
+          {_REAL_MESSAGE}
+        ORDER BY m.ROWID DESC LIMIT ?
+        """,
+        (f"%{_escape_like(query)}%", limit),
+    ).fetchall()
+    return [
+        {"rowid": int(r), "guid": g, "text": (t or "").strip(), "apple_date": d, "from_me": bool(fm), "handle": h}
+        for r, g, t, d, fm, h in rows
+    ]
+
+
 def conversation_history(connection: sqlite3.Connection, chat_id: int, through_rowid: int, limit: int = 8) -> list[dict]:
     rows = connection.execute(
         f"""
