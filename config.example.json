@@ -4,10 +4,14 @@
     {"address": "someone@example.com", "name": "Sam"}
   ],
   "messages_db": "",
+  "safari_bookmarks_plist": "",
+  "findmy_cache_dir": "",
   "state_dir": "./work",
   "poll_seconds": 3,
   "webhook_url": "https://your-assistant.example.com/hooks/imessage",
   "webhook_headers": {},
   "calendar": "Assistant Shared",
-  "reminders_list": "Assistant Shared"
+  "reminders_list": "Assistant Shared",
+  "allow_write_tools": [],
+  "disabled_apps": []
 }

@@ -13,6 +13,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_MESSAGES_DB = Path.home() / "Library" / "Messages" / "chat.db"
+DEFAULT_SAFARI_BOOKMARKS_PLIST = Path.home() / "Library" / "Safari" / "Bookmarks.plist"
+DEFAULT_FINDMY_CACHE_DIR = Path.home() / "Library" / "Caches" / "com.apple.findmy.fmipcore"
 
 
 def _load_file() -> dict:
@@ -36,12 +38,16 @@ def load() -> dict:
     data = _load_file()
     cfg: dict = {
         "messages_db": os.path.expanduser(os.environ.get("APPLE_BRIDGE_MESSAGES_DB", data.get("messages_db") or str(DEFAULT_MESSAGES_DB))),
+        "safari_bookmarks_plist": os.path.expanduser(os.environ.get("APPLE_BRIDGE_SAFARI_BOOKMARKS_PLIST", data.get("safari_bookmarks_plist") or str(DEFAULT_SAFARI_BOOKMARKS_PLIST))),
+        "findmy_cache_dir": os.path.expanduser(os.environ.get("APPLE_BRIDGE_FINDMY_CACHE_DIR", data.get("findmy_cache_dir") or str(DEFAULT_FINDMY_CACHE_DIR))),
         "state_dir": os.environ.get("APPLE_BRIDGE_STATE_DIR", data.get("state_dir") or str(ROOT / "work")),
         "poll_seconds": int(os.environ.get("APPLE_BRIDGE_POLL_SECONDS", data.get("poll_seconds", 3))),
         "calendar": os.environ.get("APPLE_BRIDGE_CALENDAR", data.get("calendar", "")),
         "reminders_list": os.environ.get("APPLE_BRIDGE_REMINDERS_LIST", data.get("reminders_list", "")),
         "webhook_url": os.environ.get("APPLE_BRIDGE_WEBHOOK_URL", data.get("webhook_url", "")),
         "webhook_headers": dict(data.get("webhook_headers", {})),
+        "allow_write_tools": _list_env("APPLE_BRIDGE_ALLOW_WRITE_TOOLS") or list(data.get("allow_write_tools", [])),
+        "disabled_apps": _list_env("APPLE_BRIDGE_DISABLED_APPS") or list(data.get("disabled_apps", [])),
     }
     token = os.environ.get("APPLE_BRIDGE_WEBHOOK_TOKEN")
     if token:
