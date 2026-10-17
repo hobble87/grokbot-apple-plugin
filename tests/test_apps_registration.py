@@ -20,6 +20,7 @@ def test_every_app_is_represented():
     assert apps == {
         "calendar", "reminders", "messages", "contacts", "notes", "clipboard",
         "shortcuts", "music", "finder", "notifications",
+        "mail", "safari", "photos", "findmy",
     }
 
 
@@ -34,6 +35,8 @@ def test_write_tools_include_expected_mutations():
         "music.play_playlist", "music.set_volume",
         "finder.reveal", "finder.open",
         "notifications.display",
+        "mail.create_draft", "mail.send",
+        "safari.open_url",
     }
     actual_writes = {name for name, t in tools.items() if t.kind == "write"}
     assert actual_writes == expected_writes

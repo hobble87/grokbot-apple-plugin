@@ -2,11 +2,14 @@
 from __future__ import annotations
 
 from .. import safety
-from . import calendar, clipboard, contacts, finder, messages, music, notes, notifications, reminders, shortcuts
+from . import (
+    calendar, clipboard, contacts, findmy, finder, mail, messages, music,
+    notes, notifications, photos, reminders, safari, shortcuts,
+)
 
 MODULES = (
     calendar, reminders, messages, contacts, notes, clipboard,
-    shortcuts, music, finder, notifications,
+    shortcuts, music, finder, notifications, mail, safari, photos, findmy,
 )
 
 
