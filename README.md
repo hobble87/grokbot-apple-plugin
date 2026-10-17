@@ -268,3 +268,7 @@ python3 -m pytest -q
 ## License
 
 MIT, see [LICENSE](LICENSE).
+
+## Testing status
+
+Every tool is covered by mocked unit tests (116 passing on Linux CI). On a real Mac, the read tools for Calendar, Reminders, Messages, Clipboard, Shortcuts, Spotlight and Safari bookmarks have been verified. Contacts, Notes, Music, Mail, Photos, Safari tabs and Finder selection have so far only been tested with mocks, because the test session ran over ssh, where macOS Automation prompts can't be approved. Run locally, you'll get the normal macOS "Allow" prompts for each app. Reports and fixes are welcome.
