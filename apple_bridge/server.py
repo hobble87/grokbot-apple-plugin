@@ -20,6 +20,12 @@ WRITE_BLOCKED_SUFFIX = " [WRITE – requires allow-list]"
 WRITE_ENABLED_SUFFIX = " [WRITE – enabled]"
 
 
+def wire_name(name: str) -> str:
+    """MCP clients commonly require tool names matching ^[a-zA-Z0-9_-]{1,64}$,
+    so internal "app.tool" names are exposed as "app_tool"."""
+    return name.replace(".", "_")
+
+
 def tool_list(cfg: dict) -> list[dict]:
     allow = cfg.get("allow_write_tools", [])
     out = []
@@ -28,7 +34,7 @@ def tool_list(cfg: dict) -> list[dict]:
         if tool.kind == "write":
             description += WRITE_ENABLED_SUFFIX if is_write_allowed(tool.name, allow) else WRITE_BLOCKED_SUFFIX
         out.append({
-            "name": tool.name,
+            "name": wire_name(tool.name),
             "description": description,
             "inputSchema": {
                 "type": "object",
@@ -42,7 +48,10 @@ def tool_list(cfg: dict) -> list[dict]:
 
 
 def call_tool(name: str, arguments: dict, cfg: dict) -> str:
-    tools_by_name = {t.name: t for t in visible_tools(collect_tools(), cfg)}
+    tools_by_name = {}
+    for t in visible_tools(collect_tools(), cfg):
+        tools_by_name[t.name] = t
+        tools_by_name[wire_name(t.name)] = t
     tool = tools_by_name.get(name)
     if tool is None:
         raise LookupError(f"unknown tool {name}")

@@ -19,17 +19,17 @@ def test_ping_returns_empty_dict():
 def test_tools_list_marks_blocked_write_tools():
     result = server.handle({"method": "tools/list"})
     by_name = {t["name"]: t for t in result["tools"]}
-    assert "[WRITE" in by_name["clipboard.set"]["description"]
-    assert by_name["clipboard.set"]["annotations"]["readOnlyHint"] is False
-    assert by_name["clipboard.get"]["annotations"]["readOnlyHint"] is True
-    assert "requires allow-list" in by_name["clipboard.set"]["description"]
+    assert "[WRITE" in by_name["clipboard_set"]["description"]
+    assert by_name["clipboard_set"]["annotations"]["readOnlyHint"] is False
+    assert by_name["clipboard_get"]["annotations"]["readOnlyHint"] is True
+    assert "requires allow-list" in by_name["clipboard_set"]["description"]
 
 
 def test_tools_list_hides_disabled_apps(isolated_config):
     (isolated_config / "config.json").write_text(json.dumps({"disabled_apps": ["clipboard"]}))
     result = server.handle({"method": "tools/list"})
     names = {t["name"] for t in result["tools"]}
-    assert not any(name.startswith("clipboard.") for name in names)
+    assert not any(name.startswith("clipboard_") for name in names)
 
 
 def test_call_tool_blocks_write_without_allow_list(monkeypatch):
@@ -61,3 +61,16 @@ def test_handle_tools_call_wraps_errors_as_json_rpc_error():
     message = {"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "clipboard.set", "arguments": {"text": "hi"}}}
     with pytest.raises(WriteNotAllowedError):
         server.handle(message)
+
+
+def test_wire_names_are_client_safe():
+    import re
+    result = server.handle({"method": "tools/list"})
+    for t in result["tools"]:
+        assert re.fullmatch(r"[a-zA-Z0-9_-]{1,64}", t["name"]), t["name"]
+
+
+def test_call_tool_accepts_wire_name(monkeypatch):
+    from apple_bridge import runner
+    monkeypatch.setattr(runner, "run_cli", lambda *a, **k: "clip")
+    assert "clip" in server.call_tool("clipboard_get", {}, {})

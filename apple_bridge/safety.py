@@ -39,7 +39,10 @@ def app_name(tool_name: str) -> str:
 
 
 def is_write_allowed(tool_name: str, allow_write_tools: list[str]) -> bool:
-    return tool_name in allow_write_tools or f"{app_name(tool_name)}.*" in allow_write_tools
+    # Accept both the internal "app.tool" form and the MCP wire form "app_tool".
+    allowed = {entry.strip() for entry in allow_write_tools}
+    app = app_name(tool_name)
+    return bool({tool_name, tool_name.replace(".", "_", 1), f"{app}.*", f"{app}_*"} & allowed)
 
 
 def check_write_allowed(tool: ToolDef, cfg: dict) -> None:

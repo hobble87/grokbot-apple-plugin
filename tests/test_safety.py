@@ -47,3 +47,10 @@ def test_visible_tools_filters_disabled_apps():
     tools = [_tool(name="notes.create"), _tool(name="clipboard.get", kind="read")]
     out = visible_tools(tools, {"disabled_apps": ["notes"]})
     assert [t.name for t in out] == ["clipboard.get"]
+
+
+def test_allow_list_accepts_wire_form_names():
+    from apple_bridge.safety import is_write_allowed
+    assert is_write_allowed("clipboard.set", ["clipboard_set"])
+    assert is_write_allowed("clipboard.set", ["clipboard_*"])
+    assert not is_write_allowed("clipboard.set", ["mail_*"])
